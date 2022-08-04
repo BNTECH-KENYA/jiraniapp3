@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "490234119235",
+    "project_id": "projectjirani-e0cdf",
+    "storage_bucket": "projectjirani-e0cdf.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:490234119235:android:b70899d7c45bd50cb880f6",
+        "android_client_info": {
+          "package_name": "com.jirani.jiraniapp.jiraniapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "490234119235-7qvkd6q021jtk6gl4pboa44pt7f3kg3n.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.jirani.jiraniapp.jiraniapp",
+            "certificate_hash": "9f9797a60a0bdce39957a54e28db0ba9e9debc1c"
+          }
+        },
+        {
+          "client_id": "490234119235-g2megj6elj0brsem0t9tvkttc02hiif4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCkCUmHXiB6NgDO6EZv7zhzz6T11i97h-I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "490234119235-g2megj6elj0brsem0t9tvkttc02hiif4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "490234119235-5gc6tpv7t74fo6104djcekqrnkndmfd6.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.jirani.jiraniapp.jiraniapp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
