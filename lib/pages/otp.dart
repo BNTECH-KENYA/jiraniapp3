@@ -48,6 +48,9 @@ class _OTPScreenState extends State<OTPScreen> {
     return Scaffold(
       key:_scaffoldkey,
       appBar: AppBar(
+        actionsIconTheme: IconThemeData(
+          color:Colors.white,
+        ),
         title:Text('OTP Verification',
           style: TextStyle(
             color:Colors.white,
@@ -121,7 +124,7 @@ class _OTPScreenState extends State<OTPScreen> {
               {
                 _scaffoldkey.currentState
                     ?.showSnackBar(
-                  SnackBar(content: Text('invalid OTP'))
+                  SnackBar(content: Text('invalid OTP + ${e.toString()}'))
                 );
               }
             },

@@ -7,6 +7,7 @@ import 'package:jiraniapp/pages/addService.dart';
 import 'package:jiraniapp/pages/creategroup.dart';
 import 'package:jiraniapp/pages/home.dart';
 import 'package:jiraniapp/pages/ingrouppage.dart';
+import 'package:jiraniapp/pages/ipay_page.dart';
 import 'package:jiraniapp/pages/location.dart';
 import 'package:jiraniapp/pages/login.dart';
 import 'package:jiraniapp/pages/tabslayout.dart';

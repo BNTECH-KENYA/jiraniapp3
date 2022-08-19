@@ -6,7 +6,6 @@ import 'package:jiraniapp/pages/otp.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:jiraniapp/pages/roomcleaningbody.dart';
 import 'package:jiraniapp/pages/services.dart';
-import 'package:jiraniapp/pages/shoppingPage.dart';
 import 'package:jiraniapp/pages/tabslayout.dart';
 import 'package:toast/toast.dart';
 

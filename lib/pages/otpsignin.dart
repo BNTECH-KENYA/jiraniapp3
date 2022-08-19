@@ -101,6 +101,9 @@ class _OTPScreenSignInState extends State<OTPScreenSignIn> {
     return Scaffold(
       key:_scaffoldkey,
       appBar: AppBar(
+        actionsIconTheme: IconThemeData(
+          color:Colors.white,
+        ),
         title:Text('OTP Verification',
           style: TextStyle(
             color:Colors.white,

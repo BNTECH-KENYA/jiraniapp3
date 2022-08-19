@@ -16,7 +16,11 @@ class DetailsScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        leading: const BackButton(color: Colors.black),
+        iconTheme: IconThemeData(
+          color: Colors.white,
+        ),
+        backgroundColor: Colors.blue,
+        leading: const BackButton(color: Colors.white),
         actions: [
           IconButton(
             onPressed: () {},

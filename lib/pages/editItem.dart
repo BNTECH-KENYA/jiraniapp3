@@ -5,6 +5,10 @@ import 'dart:io';
 
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:share/share.dart';
+
+import 'home.dart';
+import 'my_contributions.dart';
 
 class EditItem extends StatefulWidget {
   const EditItem({Key? key}) : super(key: key);
@@ -308,45 +312,111 @@ class _EditItemState extends State<EditItem> {
           ],
         ),
       ),
+      bottomNavigationBar: BottomAppBar(
+        color: Colors.white,
+        child: Container(
+          height: 50,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              InkWell(
 
-        bottomNavigationBar:Padding(
-          padding: const EdgeInsets.only(bottom:8.0, right:2.0, left:2.0),
-          child: GNav(
-              rippleColor: Colors.white, // tab button ripple color when pressed
-              hoverColor: Colors.blueGrey, // tab button hover color
-              haptic: true, // haptic feedback
-              tabBorderRadius: 15,
-              tabActiveBorder: Border.all(color: Colors.blue, width: 1), // tab button border
-              tabBorder: Border.all(color: Colors.grey, width: 1), // tab button border
-              tabShadow: [BoxShadow(color: Colors.white.withOpacity(0.5), blurRadius: 8)], // tab button shadow
-              curve: Curves.easeOutExpo, // tab animation curves
-              duration: Duration(milliseconds: 900), // tab animation duration
-              gap: 8, // the tab button gap between icon and text
-              color: Colors.grey[800], // unselected icon color
-              activeColor: Colors.blue, // selected icon and text color
-              iconSize: 24, // tab button icon size
-              tabBackgroundColor: Colors.blue.withOpacity(0.1), // selected tab background color
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5), // navigation bar padding
-              tabs: [
-                GButton(
-                  icon: LineIcons.home,
-                  text: 'Home',
+                onTap: (){
+                  Navigator.of(context).push(
+                      MaterialPageRoute
+                        (builder: (context)=>HomePage()));
+                },
+
+                child: Container(
+                  child: Column(
+                    children: [
+                      Icon(Icons.home_filled, color:Colors.black87),
+                      Text(
+                        'Home',
+                        style: TextStyle(
+                          color: Colors.black87,
+                          fontSize: 12,
+                        ),
+                      )
+                    ],
+                  ),
                 ),
-                GButton(
-                  icon: LineIcons.paypalCreditCard,
-                  text: 'Payments',
+              ),
+
+              InkWell(
+
+                onTap: (){
+                  Navigator.of(context).push(
+                      MaterialPageRoute
+                        (builder: (context)=>My_Contributions()));
+                },
+
+                child: Container(
+                  child: Column(
+                    children: [
+                      Icon(Icons.payment, color:Colors.black87),
+                      Text(
+                        'Payments',
+                        style: TextStyle(
+                          color: Colors.black87,
+                          fontSize: 12,
+                        ),
+                      )
+                    ],
+                  ),
                 ),
-                GButton(
-                  icon: Icons.rate_review,
-                  text: 'Rate',
+              ),
+
+              InkWell(
+
+                onTap: (){
+
+                },
+
+                child: Container(
+                  child: Column(
+                    children: [
+                      Icon(Icons.rate_review, color:Colors.black87),
+                      Text(
+                        'Rate App',
+                        style: TextStyle(
+                          color: Colors.black87,
+                          fontSize: 12,
+                        ),
+                      )
+                    ],
+                  ),
                 ),
-                GButton(
-                  icon: LineIcons.share,
-                  text: 'Share',
-                )
-              ]
+              ),
+
+              InkWell(
+
+                onTap: () async {
+                  await Share.share("link to download app");
+                },
+
+                child: Container(
+                  child: Column(
+                    children: [
+                      Icon(Icons.share, color:Colors.black87),
+                      Text(
+                        'Share',
+                        style: TextStyle(
+                          color: Colors.black87,
+                          fontSize: 12,
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+
+            ],
           ),
-        )
+        ),
+      ),
+
     );
   }
 }

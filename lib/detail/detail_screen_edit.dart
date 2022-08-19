@@ -16,6 +16,7 @@ class DetailsScreenEdit extends StatelessWidget {
     return Scaffold(
       backgroundColor: product.bgColor,
       appBar: AppBar(
+        backgroundColor: Colors.blue,
         leading: const BackButton(color: Colors.black),
         actions: [
           IconButton(

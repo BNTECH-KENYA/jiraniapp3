@@ -7,11 +7,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:jiraniapp/pages/loading_screen.dart';
 import 'package:jiraniapp/pages/serviceinfo.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:share/share.dart';
+import 'package:toast/toast.dart';
 
 import '../firebasest/storage.dart';
+import 'group_category_page.dart';
 import 'home.dart';
 import 'location.dart';
 import 'login.dart';
@@ -45,7 +48,33 @@ class _AddServiceState extends State<AddService> {
 
   String uidAccess = "0";
   bool isLoading = true;
+  String user_name =  "";
 
+
+  Future<void> getUserData()
+  async {
+    final docref = db.collection("userdd").doc(uidAccess);
+    await docref.get().then((res) {
+
+      if(res.data() != null)
+      {
+        print("###########################################${res.data()!['name']} group information");
+        setState(
+                (){
+              user_name= res.data()!['name'];
+              isLoading = false;
+
+
+            }
+        );
+
+      }
+
+    });
+
+
+
+  }
 
   Future<String> uploadServiceData(servicename,phone, servicedesc, location, photosLinks)
   async {
@@ -55,7 +84,10 @@ class _AddServiceState extends State<AddService> {
 
 
       "servicename":_controllername.text.toString(),
-      "createdby":uidAccess,
+      "createdby":{
+        "phonenumber": uidAccess,
+        "name": user_name,
+      },
       "phone":countrycode+_phoneNumberSet.text.toString(),
       "category":_category,
       "servicedesc":_controllerdesc.text.toString(),
@@ -85,7 +117,7 @@ class _AddServiceState extends State<AddService> {
         setState(
                 (){
               uidAccess =  user.phoneNumber!;
-              isLoading = false;
+              getUserData();
 
                 }
         );
@@ -118,7 +150,8 @@ class _AddServiceState extends State<AddService> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return isLoading ? Loading_Screen()
+        : Scaffold(
       backgroundColor: Colors.grey[200],
       floatingActionButton:FloatingActionButton(
           backgroundColor: Colors.blue,
@@ -127,28 +160,43 @@ class _AddServiceState extends State<AddService> {
 
             if(_controllername.text.toString().trim().isEmpty)
               {
-
+                Toast.show("Enter Service Name".toString(), context,duration:Toast.LENGTH_SHORT,
+                    gravity: Toast.BOTTOM);
               }
             else if(uidAccess == "0")
               {
-
+                Toast.show("Error please try again".toString(), context,duration:Toast.LENGTH_SHORT,
+                    gravity: Toast.BOTTOM);
               }
             else if(_controllerdesc.text.toString().trim().isEmpty)
               {
 
+                Toast.show("Enter Service Description".toString(), context,duration:Toast.LENGTH_SHORT,
+                    gravity: Toast.BOTTOM);
               }
             else if(_phoneNumberSet.text.toString().trim().isEmpty ||
                 _phoneNumberSet.text.toString().length < 9)
               {
+                Toast.show("Enter Contacts to from which users can reach out to you".toString(), context,duration:Toast.LENGTH_SHORT,
+                    gravity: Toast.BOTTOM);
               }
             else if(tappedLocation == "not selected")
               {
+                Toast.show("Select Location".toString(), context,duration:Toast.LENGTH_SHORT,
+                    gravity: Toast.BOTTOM);
 
               }
             else if(_category == "not selected")
               {
+                Toast.show("Select Category".toString(), context,duration:Toast.LENGTH_SHORT,
+                    gravity: Toast.BOTTOM);
 
               }
+            else if(user_name == "")
+            {
+              Toast.show("Error please try again".toString(), context,duration:Toast.LENGTH_SHORT,
+                  gravity: Toast.BOTTOM);
+            }
             else{
 
               setState(() {
@@ -230,8 +278,7 @@ class _AddServiceState extends State<AddService> {
 
       ),
 
-      body:isLoading ? Center(child: CircularProgressIndicator(),)
-          :Container(
+      body:Container(
         width: MediaQuery.of(context).size.width,
 
         child: ListView(
@@ -287,7 +334,18 @@ class _AddServiceState extends State<AddService> {
                 ),
             ),
             InkWell(
-              onTap: (){},
+              onTap: () async {
+                String item_category = await Navigator.push(context,
+                    MaterialPageRoute(builder:
+                        (context) => Group_Categories(collection_name: 'Service',)));
+
+                if(item_category != null)
+                {
+                  setState(() {
+                    _category = item_category;
+                  });
+                }
+              },
               child: ListTile(
                 leading: CircleAvatar(
                   radius: 30,
@@ -303,39 +361,7 @@ class _AddServiceState extends State<AddService> {
                     style:TextStyle(
                         fontSize: 13
                     )),
-                trailing: PopupMenuButton<String>(
-                    color:Colors.white,
-                    onSelected: (value)
-                    {
-                      setState(
-                              (){
-                            _category = value;
-                          }
-                      );
-                    },
-                    itemBuilder: (BuildContext context){
-                      return[
-                        PopupMenuItem(
-                          child: Text("Catering"),
-                          value:"Catering",
-                        ),
-                        PopupMenuItem(
-                          child: Text("Auditing"),
-                          value:"Auditing",
-                        ),
-                        PopupMenuItem(
-                          child: Text("Cleaning"),
-                          value:"Cleaning",
-                        ),  PopupMenuItem(
-                          child: Text("Wedding Planning"),
-                          value:"Wedding Planning",
-                        ),  PopupMenuItem(
-                          child: Text("Others"),
-                          value:"Others",
-                        ),
-                      ];
-                    }
-                ),
+                trailing:Icon(Icons.navigate_next_sharp, color: Colors.blue,),
               ),
             ),
             InkWell(
@@ -526,65 +552,117 @@ class _AddServiceState extends State<AddService> {
         ),
       ),
 
-        bottomNavigationBar:Padding(
-          padding: const EdgeInsets.only(bottom:8.0, right:2.0, left:2.0),
-          child: GNav(
-            rippleColor: Colors.white, // tab button ripple color when pressed
-            hoverColor: Colors.blueGrey, // tab button hover color
-            haptic: true, // haptic feedback
-            tabBorderRadius: 15,
-            tabActiveBorder: Border.all(color: Colors.blue, width: 1), // tab button border
-            tabBorder: Border.all(color: Colors.grey, width: 1), // tab button border
-            tabShadow: [BoxShadow(color: Colors.white.withOpacity(0.5), blurRadius: 8)], // tab button shadow
-            curve: Curves.easeOutExpo, // tab animation curves
-            duration: Duration(milliseconds: 900), // tab animation duration
-            gap: 8, // the tab button gap between icon and text
-            color: Colors.grey[800], // unselected icon color
-            activeColor: Colors.blue, // selected icon and text color
-            iconSize: 24, // tab button icon size
-            tabBackgroundColor: Colors.blue.withOpacity(0.1), // selected tab background color
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5), // navigation bar padding
-            tabs: [
-              GButton(
-                icon: LineIcons.home,
-                text: 'Home',
-              ),
-              GButton(
-                icon: LineIcons.paypalCreditCard,
-                text: 'Payments',
-              ),
-              GButton(
-                icon: Icons.rate_review,
-                text: 'Rate',
-              ),
-              GButton(
-                icon: LineIcons.share,
-                text: 'Share',
-              )
-            ],
-            onTabChange: (index) async {
-              if(index == 0)
-              {
-                Navigator.of(context).push(
-                    MaterialPageRoute
-                      (builder: (context)=>HomePage()));
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.only(top:8.0),
+        child: BottomAppBar(
+          color: Colors.blue,
+          child: Padding(
+            padding: const EdgeInsets.only(top:8.0),
+            child: Container(
+              height: 50,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  InkWell(
 
-              }
-              else if(index == 1)
-              {
-                Navigator.of(context).push(
-                    MaterialPageRoute
-                      (builder: (context)=>My_Contributions()));
-              }else if(index == 2)
-              {
+                    onTap: (){
+                      Navigator.of(context).push(
+                          MaterialPageRoute
+                            (builder: (context)=>HomePage()));
+                    },
 
-              }else if(index == 3)
-              {
-                await Share.share("link to download app");
-              }
-            },
+                    child: Container(
+                      child: Column(
+                        children: [
+                          Icon(Icons.home_filled, color:Colors.white),
+                          Text(
+                            'Home',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  InkWell(
+
+                    onTap: (){
+                      Navigator.of(context).push(
+                          MaterialPageRoute
+                            (builder: (context)=>My_Contributions()));
+                    },
+
+                    child: Container(
+                      child: Column(
+                        children: [
+                          Icon(Icons.payment, color:Colors.white),
+                          Text(
+                            'Payments',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  InkWell(
+
+                    onTap: (){
+
+                    },
+
+                    child: Container(
+                      child: Column(
+                        children: [
+                          Icon(Icons.rate_review, color:Colors.white),
+                          Text(
+                            'Rate App',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  InkWell(
+
+                    onTap: () async {
+                      await Share.share("link to download app");
+                    },
+
+                    child: Container(
+                      child: Column(
+                        children: [
+                          Icon(Icons.share, color:Colors.white),
+                          Text(
+                            'Share',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+
+                ],
+              ),
+            ),
           ),
-        )
+        ),
+      ),
+
 
     );
   }

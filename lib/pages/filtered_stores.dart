@@ -4,11 +4,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:jiraniapp/pages/allItemsDisplay.dart';
-import 'package:jiraniapp/pages/shoppingPage.dart';
+import 'package:jiraniapp/pages/loading_screen.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:share/share.dart';
 
 import '../models/stores_model.dart';
+import '../widget/filtered_searches_widget.dart';
+import 'home.dart';
 import 'login.dart';
+import 'my_contributions.dart';
 
 class Filtered_Stores extends StatefulWidget {
   const Filtered_Stores({Key? key, required this.store_search_criteria}) : super(key: key);
@@ -151,7 +155,7 @@ class _Filtered_StoresState extends State<Filtered_Stores> {
 
   @override
   Widget build(BuildContext context) {
-    return isLoading ? Center(child: CircularProgressIndicator(),)
+    return isLoading ? Loading_Screen()
         : Scaffold(
       appBar:  AppBar(
         backgroundColor: Colors.blue,
@@ -208,19 +212,136 @@ class _Filtered_StoresState extends State<Filtered_Stores> {
                           MaterialPageRoute
                             (builder: (context)=>All_Items()));
                     },
+                    child:  Searched_Data_Filteres(
+                                  photolink: store_filtered_list[index].store_photo_links[0].toString(),
+                                  desccription: "Located at ${store_filtered_list[index].store_location}",
+                                  itemname: '${store_filtered_list[index].storename}',));
+
+
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.only(top:8.0),
+        child: BottomAppBar(
+          color: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.only(top:8.0),
+            child: Container(
+              height: 50,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  InkWell(
+
+                    onTap: (){
+                      Navigator.of(context).push(
+                          MaterialPageRoute
+                            (builder: (context)=>HomePage()));
+                    },
+
                     child: Container(
-                      margin: EdgeInsets.only(top:16),
-                      padding: EdgeInsets.only(left: 20),
-                      child: Stack(
+                      child: Column(
                         children: [
-                          Container(
-                            padding: EdgeInsets.only(left: 30),
-                            child: Card(
-                              child: Container(
-                                width: MediaQuery.of(context).size.width * 0.8,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8)),
-                                child: Container(
+                          Icon(Icons.home_filled, color:Colors.grey),
+                          Text(
+                            'Home',
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 12,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  InkWell(
+
+                    onTap: (){
+                      Navigator.of(context).push(
+                          MaterialPageRoute
+                            (builder: (context)=>My_Contributions()));
+                    },
+
+                    child: Container(
+                      child: Column(
+                        children: [
+                          Icon(Icons.payment, color:Colors.grey),
+                          Text(
+                            'Payments',
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 12,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  InkWell(
+
+                    onTap: (){
+
+                    },
+
+                    child: Container(
+                      child: Column(
+                        children: [
+                          Icon(Icons.rate_review, color:Colors.grey),
+                          Text(
+                            'Rate App',
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 12,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  InkWell(
+
+                    onTap: () async {
+                      await Share.share("link to download app");
+                    },
+
+                    child: Container(
+                      child: Column(
+                        children: [
+                          Icon(Icons.share, color:Colors.grey),
+                          Text(
+                            'Share',
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 12,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+
+    );
+  }
+}
+
+/*
+
+Container(
                                   decoration: BoxDecoration(
                                     boxShadow: [
                                       BoxShadow(
@@ -312,51 +433,4 @@ class _Filtered_StoresState extends State<Filtered_Stores> {
                         ],
                       ),
                     ),
-                  );
-                },
-              ),
-            ),
-          ),
-        ],
-      ),
-        bottomNavigationBar:Padding(
-          padding: const EdgeInsets.only(bottom:8.0, right:2.0, left:2.0),
-          child: GNav(
-              rippleColor: Colors.white, // tab button ripple color when pressed
-              hoverColor: Colors.blueGrey, // tab button hover color
-              haptic: true, // haptic feedback
-              tabBorderRadius: 15,
-              tabActiveBorder: Border.all(color: Colors.blue, width: 1), // tab button border
-              tabBorder: Border.all(color: Colors.grey, width: 1), // tab button border
-              tabShadow: [BoxShadow(color: Colors.white.withOpacity(0.5), blurRadius: 8)], // tab button shadow
-              curve: Curves.easeOutExpo, // tab animation curves
-              duration: Duration(milliseconds: 900), // tab animation duration
-              gap: 8, // the tab button gap between icon and text
-              color: Colors.grey[800], // unselected icon color
-              activeColor: Colors.blue, // selected icon and text color
-              iconSize: 24, // tab button icon size
-              tabBackgroundColor: Colors.blue.withOpacity(0.1), // selected tab background color
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5), // navigation bar padding
-              tabs: [
-                GButton(
-                  icon: LineIcons.home,
-                  text: 'Home',
-                ),
-                GButton(
-                  icon: LineIcons.paypalCreditCard,
-                  text: 'Payments',
-                ),
-                GButton(
-                  icon: Icons.rate_review,
-                  text: 'Rate',
-                ),
-                GButton(
-                  icon: LineIcons.share,
-                  text: 'Share',
-                )
-              ]
-          ),
-        )
-    );
-  }
-}
+ */

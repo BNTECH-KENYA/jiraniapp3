@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../models/messagemodel.dart';
 import '../widget/otherCard.dart';
@@ -17,10 +18,8 @@ class InGroupPage extends StatefulWidget {
   State<InGroupPage> createState() => _InGroupPageState();
 }
 
-class _InGroupPageState extends State<InGroupPage> {
-
+class _InGroupPageState extends State<InGroupPage>{
   TextEditingController _amounttocontribute = TextEditingController();
-
   final db = FirebaseFirestore.instance;
     String imagelink = "";
     String groupname = "";
@@ -112,7 +111,7 @@ class _InGroupPageState extends State<InGroupPage> {
     String documentid = "";
     final chatdetails = <String, dynamic>{
 
-      "timestamp":DateTime.now().microsecondsSinceEpoch,
+      "timestamp":FieldValue.serverTimestamp(),
       "groupuid":widget.groupid,
       "sendername": name,
       "message": message,
@@ -124,14 +123,37 @@ class _InGroupPageState extends State<InGroupPage> {
     await db.collection("contributionsupdate").add(chatdetails).then(
             (DocumentReference doc) {
               documentid = doc.id;
-              setState(
-                      (){
-                    onloaded = true;
-                  }
-              );
+
+              updateGroupLastText(name, message);
+
         }
     );
   }
+
+  Future <void> updateGroupLastText(name, amount)async {
+
+    final latupdatetext = <String, dynamic>{
+
+      "toppingClassifier":FieldValue.serverTimestamp(),
+
+      "latestContribution": "${name} contributed ${amount}",
+
+    };
+    await db.collection("GroupData")
+        .doc(widget.groupid)
+        .update(latupdatetext)
+        .then((value){
+
+      setState(
+              (){
+            onloaded = true;
+          }
+      );
+    });
+
+
+  }
+
 
   Future<void> display_function_dialogue() async {
    await showDialog(
@@ -152,11 +174,11 @@ class _InGroupPageState extends State<InGroupPage> {
          
                  child: const Text("No")),
              TextButton(
-                 onPressed: (){
+                 onPressed: () async {
 
                    Navigator.of(context).pop();
                    print("user name >>>>>>>>>>>>>${user_name}");
-                   add_Chat_Data( user_name, _amounttocontribute.text.toString() );
+                  await add_Chat_Data( user_name, _amounttocontribute.text.toString() );
                    setState(
                        (){
                          _amounttocontribute.text = "";
@@ -315,8 +337,15 @@ class _InGroupPageState extends State<InGroupPage> {
                            if(course?['senderphoneno'] == uidAccess)
                              {
                                return OwnMessageCard(messageModel:  MesssageModel(
-                                   timestamp: "20:58",
-                                   name: course?['sendername'],
+                                   timestamp: (DateFormat('dd/MMM/yyy').format(DateTime.parse((course?['timestamp']).toDate().toString())))
+
+                                       ==
+                                       (DateFormat('dd/MMM/yyy').format(DateTime.now()))?
+
+                                   (DateFormat('hh:mm a').format(DateTime.parse((course?['timestamp']).toDate().toString()))):
+
+                                   (DateFormat('dd/MMM/yyy hh:mm a').format(DateTime.parse((course?['timestamp']).toDate().toString()))),
+                                   name: course?['sendername'].split('-')[0],
                                    message: "you contributed ${course?['message']}"
                                  ),);
 
@@ -324,9 +353,16 @@ class _InGroupPageState extends State<InGroupPage> {
                            else
                              {
                                return ReplCard(messageModel:  MesssageModel(
-                                   timestamp: "20:58",
-                                   name: course?['sendername'],
-                                   message: "${course?['sendername']} contributed ${course?['message']}"),);
+                                   timestamp: (DateFormat('dd/MMM/yyy').format(DateTime.parse((course?['timestamp']).toDate().toString())))
+
+                                       ==
+                                       (DateFormat('dd/MMM/yyy').format(DateTime.now()))?
+
+                                   (DateFormat('hh:mm a').format(DateTime.parse((course?['timestamp']).toDate().toString()))):
+
+                                   (DateFormat('dd/MMM/yyy hh:mm a').format(DateTime.parse((course?['timestamp']).toDate().toString()))),
+                                   name: course?['sendername'].split('-')[0],
+                                   message: "${course?['sendername']..split('-')[0]} contributed ${course?['message']}"),);
                              }
 
                          },

@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:jiraniapp/pages/loading_screen.dart';
 import '../models/contributions.dart';
 import 'login.dart';
 
@@ -112,7 +113,7 @@ class _My_ContributionsState extends State<My_Contributions> {
 
   @override
   Widget build(BuildContext context) {
-    return isLoading? Center(child: CircularProgressIndicator(),) :Scaffold(
+    return isLoading? Loading_Screen() :Scaffold(
           appBar: AppBar(
             backgroundColor:  Colors.blue,
             iconTheme: IconThemeData(

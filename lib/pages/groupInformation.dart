@@ -6,6 +6,7 @@ import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:jiraniapp/pages/grouppage.dart';
+import 'package:jiraniapp/pages/loading_screen.dart';
 import 'package:jiraniapp/pages/selectContact.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:share/share.dart';
@@ -256,7 +257,7 @@ class _GroupInfoState extends State<GroupInfo> {
   }
   @override
   Widget build(BuildContext context) {
-    return (contributors.length == 0 ) ?  Center(child: CircularProgressIndicator(),) :
+    return (contributors.length == 0 ) ? Loading_Screen() :
     Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue,
@@ -435,65 +436,117 @@ class _GroupInfoState extends State<GroupInfo> {
 
         ],
       ),
-      bottomNavigationBar:Padding(
-        padding: const EdgeInsets.only(bottom:8.0, right:2.0, left:2.0),
-        child: GNav(
-            rippleColor: Colors.white, // tab button ripple color when pressed
-            hoverColor: Colors.blueGrey, // tab button hover color
-            haptic: true, // haptic feedback
-            tabBorderRadius: 15,
-            tabActiveBorder: Border.all(color: Colors.blue, width: 1), // tab button border
-            tabBorder: Border.all(color: Colors.grey, width: 1), // tab button border
-            tabShadow: [BoxShadow(color: Colors.white.withOpacity(0.5), blurRadius: 8)], // tab button shadow
-            curve: Curves.easeOutExpo, // tab animation curves
-            duration: Duration(milliseconds: 900), // tab animation duration
-            gap: 8, // the tab button gap between icon and text
-            color: Colors.grey[800], // unselected icon color
-            activeColor: Colors.blue, // selected icon and text color
-            iconSize: 24, // tab button icon size
-            tabBackgroundColor: Colors.blue.withOpacity(0.1), // selected tab background color
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5), // navigation bar padding
-            tabs: [
-              GButton(
-                icon: LineIcons.home,
-                text: 'Home',
-              ),
-              GButton(
-                icon: LineIcons.paypalCreditCard,
-                text: 'Payments',
-              ),
-              GButton(
-                icon: Icons.rate_review,
-                text: 'Rate',
-              ),
-              GButton(
-                icon: LineIcons.share,
-                text: 'Share',
-              )
-            ],
-          onTabChange: (index) async {
-            if(index == 0)
-            {
-              Navigator.of(context).push(
-                  MaterialPageRoute
-                    (builder: (context)=>HomePage()));
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.only(top:8.0),
+        child: BottomAppBar(
+          color: Colors.blue,
+          child: Padding(
+            padding: const EdgeInsets.only(top:8.0),
+            child: Container(
+              height: 50,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  InkWell(
 
-            }
-            else if(index == 1)
-            {
-              Navigator.of(context).push(
-                  MaterialPageRoute
-                    (builder: (context)=>My_Contributions()));
-            }else if(index == 2)
-            {
+                    onTap: (){
+                      Navigator.of(context).push(
+                          MaterialPageRoute
+                            (builder: (context)=>HomePage()));
+                    },
 
-            }else if(index == 3)
-            {
-              await Share.share("link to download app");
-            }
-          },
+                    child: Container(
+                      child: Column(
+                        children: [
+                          Icon(Icons.home_filled, color:Colors.white),
+                          Text(
+                            'Home',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  InkWell(
+
+                    onTap: (){
+                      Navigator.of(context).push(
+                          MaterialPageRoute
+                            (builder: (context)=>My_Contributions()));
+                    },
+
+                    child: Container(
+                      child: Column(
+                        children: [
+                          Icon(Icons.payment, color:Colors.white),
+                          Text(
+                            'Payments',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  InkWell(
+
+                    onTap: (){
+
+                    },
+
+                    child: Container(
+                      child: Column(
+                        children: [
+                          Icon(Icons.rate_review, color:Colors.white),
+                          Text(
+                            'Rate App',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  InkWell(
+
+                    onTap: () async {
+                      await Share.share("link to download app");
+                    },
+
+                    child: Container(
+                      child: Column(
+                        children: [
+                          Icon(Icons.share, color:Colors.white),
+                          Text(
+                            'Share',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+
+                ],
+              ),
+            ),
+          ),
         ),
       ),
+
     );
   }
 }

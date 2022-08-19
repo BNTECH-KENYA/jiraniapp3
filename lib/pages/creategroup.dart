@@ -9,6 +9,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:jiraniapp/models/contactfr.dart';
+import 'package:jiraniapp/pages/loading_screen.dart';
 import 'package:jiraniapp/pages/location.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:share/share.dart';
@@ -18,6 +19,7 @@ import '../firebasest/storage.dart';
 import '../models/chatModel.dart';
 import '../widget/contributoringroup.dart';
 import '../widget/newgroupcontributor.dart';
+import 'group_category_page.dart';
 import 'home.dart';
 import 'ingrouppage.dart';
 import 'login.dart';
@@ -27,10 +29,10 @@ class GroupActivation extends StatefulWidget {
 
   const GroupActivation( {Key? key, required this.groups}) : super(key: key);
   final List<ContactModel> groups;
-
   @override
   State<GroupActivation> createState() => _GroupActivationState();
 }
+
 class _GroupActivationState extends State<GroupActivation> {
 
   String contributors = "contributors = 10";
@@ -39,11 +41,11 @@ class _GroupActivationState extends State<GroupActivation> {
   List<File> ? pdffile;
   TextEditingController _groupnameController = TextEditingController();
 
-
   var imagePath;
   var imageName;
   bool fileimage = false;
   bool isLoading = false;
+  String user_name = "";
 
   String tappedLocation = "not selected";
   String imageprofilelink = "none";
@@ -63,6 +65,8 @@ class _GroupActivationState extends State<GroupActivation> {
   Future<String> uploadGroupData(groupname,groupprofilepic, groupcategory, location, documentlinks, contributorsPhones)
   async {
 
+
+
    String documentid2 = "";
     final groupinfo = <String, dynamic>{
 
@@ -72,9 +76,13 @@ class _GroupActivationState extends State<GroupActivation> {
       "location": location,
       "documentlinks":documentlinks,
       "contributors":contributorsPhones,
-      "toppingClassifier":DateTime.now().microsecondsSinceEpoch,
+      "toppingClassifier":FieldValue.serverTimestamp(),
       "latestContribution":"Group Created by: name",
-      "createdby": uidAccess,
+      "createdby": {
+        "phonenumber":uidAccess,
+        "name": user_name,
+      },
+      // remember to get the user data;
 
     };
 
@@ -93,6 +101,31 @@ class _GroupActivationState extends State<GroupActivation> {
 
   String uidAccess = "0";
 
+  Future<void> getUserData()
+  async {
+    final docref = dbfr.collection("userdd").doc(uidAccess);
+    await docref.get().then((res) {
+
+      if(res.data() != null)
+      {
+        print("###########################################${res.data()!['name']} group information");
+        setState(
+                (){
+              user_name= res.data()!['name'];
+              isLoading = false;
+
+
+            }
+        );
+
+      }
+
+    });
+
+
+
+  }
+
   Future<void> checkAuth()async {
     await FirebaseAuth.instance
         .authStateChanges()
@@ -104,8 +137,10 @@ class _GroupActivationState extends State<GroupActivation> {
         setState(
                 (){
               uidAccess =  user.phoneNumber!;
+
             }
         );
+        getUserData();
         print("!!!!!!!!!!+++++++++++++++++++++${user.phoneNumber!}");
       }
       else{
@@ -131,7 +166,8 @@ class _GroupActivationState extends State<GroupActivation> {
   Widget build(BuildContext context) {
 
 
-    return Scaffold(
+    return isLoading? Loading_Screen()
+        : Scaffold(
       //groupname, Location,groupicon,Supporting documents
     backgroundColor: Colors.grey[200],
         floatingActionButton:FloatingActionButton(
@@ -191,6 +227,11 @@ class _GroupActivationState extends State<GroupActivation> {
               {
                 Toast.show("error on auth value", context,duration:Toast.LENGTH_SHORT,
                     gravity: Toast.BOTTOM);
+              }
+            else if(user_name == "")
+              {
+              Toast.show("Enter Item price".toString(), context,duration:Toast.LENGTH_SHORT,
+              gravity: Toast.BOTTOM);
               }
             else
               {
@@ -292,8 +333,7 @@ class _GroupActivationState extends State<GroupActivation> {
 
       ),
 
-      body: isLoading? Center(child: CircularProgressIndicator(),)
-          : Container(
+      body:  Container(
         width: MediaQuery.of(context).size.width,
 
         child: ListView(
@@ -371,7 +411,20 @@ class _GroupActivationState extends State<GroupActivation> {
               ),
             ),
             InkWell(
-              onTap: (){},
+              onTap: () async {
+
+                String group_category = await Navigator.push(context,
+                    MaterialPageRoute(builder:
+                        (context) => Group_Categories(collection_name: 'Group',)));
+
+                if(group_category != null)
+                  {
+                    setState(() {
+                      _category = group_category;
+                    });
+                  }
+
+              },
               child: ListTile(
                 leading: CircleAvatar(
                   radius: 30,
@@ -387,33 +440,7 @@ class _GroupActivationState extends State<GroupActivation> {
                     style:TextStyle(
                         fontSize: 13
                     )),
-                trailing: PopupMenuButton<String>(
-                    color:Colors.white,
-                    onSelected: (value)
-                    {
-                      setState(
-                          (){
-                            _category = value;
-                          }
-                      );
-                    },
-                    itemBuilder: (BuildContext context){
-                      return[
-                        PopupMenuItem(
-                          child: Text("Burial"),
-                          value:"Burial",
-                        ),
-                        PopupMenuItem(
-                          child: Text("School fees"),
-                          value:"school fees",
-                        ),
-                        PopupMenuItem(
-                          child: Text("Dowry"),
-                          value:"dowry",
-                        ),
-                      ];
-                    }
-                ),
+                trailing: Icon(Icons.navigate_next_sharp, color: Colors.black87,),
               ),
             ),
 
@@ -583,63 +610,114 @@ class _GroupActivationState extends State<GroupActivation> {
           ],
         ),
       ),
-      bottomNavigationBar:Padding(
-        padding: const EdgeInsets.only(bottom:8.0, right:2.0, left:2.0),
-        child: GNav(
-            rippleColor: Colors.white, // tab button ripple color when pressed
-            hoverColor: Colors.blueGrey, // tab button hover color
-            haptic: true, // haptic feedback
-            tabBorderRadius: 15,
-            tabActiveBorder: Border.all(color: Colors.blue, width: 1), // tab button border
-            tabBorder: Border.all(color: Colors.grey, width: 1), // tab button border
-            tabShadow: [BoxShadow(color: Colors.white.withOpacity(0.5), blurRadius: 8)], // tab button shadow
-            curve: Curves.easeOutExpo, // tab animation curves
-            duration: Duration(milliseconds: 900), // tab animation duration
-            gap: 8, // the tab button gap between icon and text
-            color: Colors.grey[800], // unselected icon color
-            activeColor: Colors.blue, // selected icon and text color
-            iconSize: 24, // tab button icon size
-            tabBackgroundColor: Colors.blue.withOpacity(0.1), // selected tab background color
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5), // navigation bar padding
-            tabs: [
-              GButton(
-                icon: LineIcons.home,
-                text: 'Home',
-              ),
-              GButton(
-                icon: LineIcons.paypalCreditCard,
-                text: 'Payments',
-              ),
-              GButton(
-                icon: Icons.rate_review,
-                text: 'Rate',
-              ),
-              GButton(
-                icon: LineIcons.share,
-                text: 'Share',
-              )
-            ],
-          onTabChange: (index) async {
-            if(index == 0)
-            {
-              Navigator.of(context).push(
-                  MaterialPageRoute
-                    (builder: (context)=>HomePage()));
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.only(top:8.0),
+        child: BottomAppBar(
+          color: Colors.blue,
+          child: Padding(
+            padding: const EdgeInsets.only(top:8.0),
+            child: Container(
+              height: 50,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  InkWell(
 
-            }
-            else if(index == 1)
-            {
-              Navigator.of(context).push(
-                  MaterialPageRoute
-                    (builder: (context)=>My_Contributions()));
-            }else if(index == 2)
-            {
+                    onTap: (){
+                      Navigator.of(context).push(
+                          MaterialPageRoute
+                            (builder: (context)=>HomePage()));
+                    },
 
-            }else if(index == 3)
-            {
-              await Share.share("link to download app");
-            }
-          },
+                    child: Container(
+                      child: Column(
+                        children: [
+                          Icon(Icons.home_filled, color:Colors.white),
+                          Text(
+                            'Home',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  InkWell(
+
+                    onTap: (){
+                      Navigator.of(context).push(
+                          MaterialPageRoute
+                            (builder: (context)=>My_Contributions()));
+                    },
+
+                    child: Container(
+                      child: Column(
+                        children: [
+                          Icon(Icons.payment, color:Colors.white),
+                          Text(
+                            'Payments',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  InkWell(
+
+                    onTap: (){
+
+                    },
+
+                    child: Container(
+                      child: Column(
+                        children: [
+                          Icon(Icons.rate_review, color:Colors.white),
+                          Text(
+                            'Rate App',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  InkWell(
+
+                    onTap: () async {
+                      await Share.share("link to download app");
+                    },
+
+                    child: Container(
+                      child: Column(
+                        children: [
+                          Icon(Icons.share, color:Colors.white),
+                          Text(
+                            'Share',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+
+                ],
+              ),
+            ),
+          ),
         ),
       ),
 

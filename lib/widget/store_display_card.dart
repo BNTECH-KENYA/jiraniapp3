@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 
 import '../models/stores_model.dart';
 import '../pages/allItemsDisplay.dart';
-import '../pages/shoppingPage.dart';
 
 class Store_Display_Card extends StatelessWidget {
   const Store_Display_Card({Key? key, required this.store_model}) : super(key: key);
