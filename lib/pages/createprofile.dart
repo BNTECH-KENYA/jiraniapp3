@@ -39,8 +39,11 @@ class _CreateGroupState extends State<CreateGroup> {
     {
       if(user != null)
       {
-
-        uidaccess =  user.uid;
+        setState(
+                (){
+                  uidaccess =  user.uid;
+            }
+        );
       }
       else{
 
@@ -51,13 +54,10 @@ class _CreateGroupState extends State<CreateGroup> {
     });
   }
 
-
   Future<void> getContact() async
   {
       if(await FlutterContacts.requestPermission())
         {
-
-
                 int i = 1;
                 contacts2 = await FlutterContacts.getContacts(
                     withProperties: true, withPhoto: false
@@ -85,6 +85,7 @@ class _CreateGroupState extends State<CreateGroup> {
                               }
                             else
                               {
+                              print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"),
                               setState(
                               ()
                               {
@@ -122,16 +123,24 @@ class _CreateGroupState extends State<CreateGroup> {
                           }
                       }, onError: (e) {
 
+                        print("${e}");
                       });
+
+
                     }
                   }
                   catch(e){
 
                   }
 
-
-
+               
                 });
+
+                setState(
+                        (){
+                      isLoading = false;
+                    }
+                );
 
         }
   }
@@ -141,13 +150,10 @@ class _CreateGroupState extends State<CreateGroup> {
     // TODO: implement initState
     super.initState();
     () async{
+      await checkAuth();
+      await getContact();
 
-     setState(
-         () async{
-           await checkAuth();
-           await getContact();
-         }
-     );
+
     }();
 
   }
@@ -199,7 +205,7 @@ class _CreateGroupState extends State<CreateGroup> {
 
         ],
       ),
-      body: (contactsrr.length >0) ? Stack(
+      body: isLoading == false ? Stack(
         children: [
           ListView.builder(
               itemCount: contactsrr.length+1,
@@ -397,7 +403,6 @@ class _CreateGroupState extends State<CreateGroup> {
           ),
         ),
       ),
-
     );
   }
 }

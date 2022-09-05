@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_settings_screens/flutter_settings_screens.dart';
@@ -24,6 +25,8 @@ import 'my_services.dart';
 import 'my_stores.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:line_icons/line_icons.dart';
+
+import 'notifications_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -110,6 +113,56 @@ class _HomePageState extends State<HomePage> {
 
    });
   }
+
+
+  Future<void> createToken ( phoneauthno)async{
+
+    FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+    final  fcmToken = await FirebaseMessaging.instance.getToken();
+
+    final setdata = <String, String>{
+      "authphonenumber":phoneauthno,
+      "token":fcmToken!
+    };
+
+    await FirebaseFirestore.instance
+        .collection('tokens')
+        .doc(firebaseAuth.currentUser!.phoneNumber).set(setdata)
+        .then((value) => {
+
+      setState(
+              (){
+            isLoading = false;
+          }
+      ),
+
+      /*
+    .onError((error, stackTrace) => {
+      Toast.show("Error saving Token${error}".toString(), context,duration:Toast.LENGTH_SHORT,
+      gravity: Toast.BOTTOM)
+      })
+     */
+    });
+    print(fcmToken);
+
+
+
+  }
+
+  Future <void> check_for_token_and_update() async{
+
+    final docref = db.collection("tokens").doc(uidAccess);
+    await docref.get().then((res) async =>{
+      print("matching ${res.data()}"),
+      if(res.data() == null)
+        {
+          await createToken(uidAccess),
+        }
+  });
+        }
+
+
+
   @override
   void initState() {
     // TODO: implement initState
@@ -155,172 +208,215 @@ class _HomePageState extends State<HomePage> {
               ),),
             actions: [
               IconButton(
-                  onPressed: () {},
+                  onPressed: () async {
+                    await Share.share("link to download app");
+                  },
                   icon: Icon(Icons.share, color: Colors.blue,)),
               IconButton(
-                  onPressed: () {},
-                  icon: Icon(Icons.notifications_none, color: Colors.blue,)),
-              IconButton(
-                  onPressed: () {},
-                  icon: Icon(Icons.more_vert, color: Colors.blue,)),
-            ],
-          ),
-          body: Column(
+                  onPressed: () {
 
-            children: [
-
-              Container(
-                width: double.infinity,
-                height: 100,
-                child: Center(
-                  child: Container(
-                    width: double.infinity,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left:16.0),
-                      child: Text("Welcome ${username}", style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16
-                      ),),
-                    ),
-                  ),
-                ),
-              ),
-
-              Card(
-                color: Colors.grey[100],
-                child: InkWell(
-                  onTap: (){
                     Navigator.of(context).push(
                         MaterialPageRoute
-                          (builder: (context)=>GroupPage()));
+                          (builder: (context)=>Notifications_Page(guestid: uidAccess, guestname: username,)));
                   },
-                  child: Container(
-                    width:  double.infinity,
-                    height: 150,
-                    child: Center(
-                      child: Text("Groups", style:TextStyle(
-                        color: Colors.black,
-                      ),),
+                  icon: Icon(Icons.notifications_none, color: Colors.blue,)),
+
+            ],
+          ),
+          body: SingleChildScrollView(
+            physics: BouncingScrollPhysics(),
+            child: Column(
+              children: [
+                Container(
+                  width: double.infinity,
+                  height: 100,
+                  child: Center(
+                    child: Container(
+                      width: double.infinity,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left:16.0),
+                        child: Text("Welcome ${username}", style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16
+                        ),),
+                      ),
                     ),
                   ),
                 ),
-              ),
 
-              Column(
-                children: [
-                  Container(
-                    width:  double.infinity,
-                    height: 150,
-                    child: Row(
+                Card(
+                  color: Colors.grey[100],
+                  child: InkWell(
+                    onTap: (){
+                      Navigator.of(context).push(
+                          MaterialPageRoute
+                            (builder: (context)=>GroupPage()));
+                    },
+                    child: Container(
+                      width:  double.infinity,
+                      height: 150,
+                      child: Center(
 
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
-                      children: [
-                        InkWell(
-                          onTap: (){
-                            Navigator.of(context).push(
-                                MaterialPageRoute
-                                  (builder: (context)=>ServiceHome()));
-                          },
-
-                          child: Card(
-                            color: Colors.grey[100],
-                            child: Container(
-                              width: MediaQuery.of(context).size.width * 0.45,
-                              height: 150,
-                              child: Center(
-                                  child: Text("Services",
-                                      style:TextStyle(
-                                        color: Colors.black,
-                                      )
-                                  )
-                              ),
-                            ),
+                        child: Container(
+                          width: 50,
+                          height: 70,
+                          child: Column(
+                            children: [
+                              Image.asset("assets/group.png", width: 50,height:50,),
+                              Text("Groups", style:TextStyle(
+                                color: Colors.black,
+                              ),),
+                            ],
                           ),
                         ),
-                        InkWell(
-                          onTap: (){
-                            Navigator.of(context).push(
-                                MaterialPageRoute
-                                  (builder: (context)=>All_Items()));
-                          },
-                          child: Card(
-                            color: Colors.grey[100],
-                            child: Container(
-                              width: MediaQuery.of(context).size.width * 0.45,
-                              height: 150,
-                              child: Center(
-                                  child: Text("Products",
-                                      style:TextStyle(
-                                        color: Colors.black,
-                                      )
-                                  )
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
-                  Container(
-                    width: double.infinity,
-                    height: 150,
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        InkWell(
-                          onTap: (){
+                ),
 
+                Column(
+                  children: [
+                    Container(
+                      width:  double.infinity,
+                      height: 150,
+                      child: Row(
 
-                          },
-                          child: Card(
-                            color: Colors.grey[100],
-                            child: Container(
-                              width: MediaQuery.of(context).size.width * 0.45,
-                              height: 150,
-                              child: Center(
-                                  child: Text("About",
-                                      style:TextStyle(
-                                        color: Colors.black,
-                                      )
-                                  )
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+                        children: [
+                          InkWell(
+                            onTap: (){
+                              Navigator.of(context).push(
+                                  MaterialPageRoute
+                                    (builder: (context)=>ServiceHome()));
+                            },
+
+                            child: Card(
+                              color: Colors.grey[100],
+                              child: Container(
+                                width: MediaQuery.of(context).size.width * 0.45,
+                                height: 150,
+                                child: Center(
+                                  child: Container(
+                                    width: 70,
+                                    height: 70,
+                                    child: Column(
+                                      children: [
+                                        Image.asset("assets/food-service.png", width: 50,height:50,),
+                                        Text("Services", style:TextStyle(
+                                          color: Colors.black,
+                                        ),),
+                                      ],
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
                           ),
-                        ),
-
-                        InkWell(
-                          onTap: (){
-                            Navigator.of(context).push(
-                                MaterialPageRoute
-                                  (builder: (context)=>My_Profile()));
-                          },
-                          child: Card(
-                            color: Colors.grey[100],
-                            child: Container(
-                              width: MediaQuery.of(context).size.width * 0.45,
-                              height: 150,
-                              child: Center(
-                                  child: Text("My Profile",
-                                      style:TextStyle(
-                                        color: Colors.black,
-                                      )
-                                  )
+                          InkWell(
+                            onTap: (){
+                              Navigator.of(context).push(
+                                  MaterialPageRoute
+                                    (builder: (context)=>All_Items()));
+                            },
+                            child: Card(
+                              color: Colors.grey[100],
+                              child: Container(
+                                width: MediaQuery.of(context).size.width * 0.45,
+                                height: 150,
+                                child: Center(
+                                  child: Container(
+                                    width: 70,
+                                    height: 70,
+                                    child: Column(
+                                      children: [
+                                        Image.asset("assets/trade.png", width: 50,height:50,),
+                                        Text("Products", style:TextStyle(
+                                          color: Colors.black,
+                                        ),),
+                                      ],
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
+                    Container(
+                      width: double.infinity,
+                      height: 150,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          InkWell(
+                            onTap: (){
 
-                  ),
-                ],
-              )
+                            },
+                            child: Card(
+                              color: Colors.grey[100],
+                              child: Container(
+                                width: MediaQuery.of(context).size.width * 0.45,
+                                height: 150,
+                                child: Center(
+                                  child: Container(
+                                    width: 70,
+                                    height: 70,
+                                    child: Column(
+                                      children: [
+                                        Image.asset("assets/information.png", width: 50,height:50,),
+                                        Text("About", style:TextStyle(
+                                          color: Colors.black,
+                                        ),),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
 
-            ],
+                          InkWell(
+                            onTap: (){
+                              Navigator.of(context).push(
+                                  MaterialPageRoute
+                                    (builder: (context)=>My_Profile()));
+                            },
+                            child: Card(
+                              color: Colors.grey[100],
+                              child: Container(
+                                width: MediaQuery.of(context).size.width * 0.45,
+                                height: 150,
+                                child: Center(
+                                  child: Container(
+                                    width: 70,
+                                    height: 70,
+                                    child: Column(
+                                      children: [
+                                        Image.asset("assets/user.png", width: 50,height:50,),
+                                        Text("My Profile", style:TextStyle(
+                                          color: Colors.black,
+                                        ),),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                    ),
+                  ],
+                )
+
+              ],
+            ),
           ),
 
         bottomNavigationBar: BottomAppBar(

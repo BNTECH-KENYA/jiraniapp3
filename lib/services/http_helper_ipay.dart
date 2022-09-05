@@ -7,10 +7,10 @@ import '../models/env_constansts.dart';
 
 class HttpHelper {
   Future<String> generateUrl(
-      String phoneNumber, String email, String amount,) async {
+      String phoneNumber, String email, String amount, String orderid, uidAccess) async {
     final ipay = IPay(vendorId: vendorId, vendorSecurityKey: securityKey);
-    var oid = getRandomString(10);
-    var inv = oid;
+    var oid = orderid;
+    var inv = orderid;
     var url = ipay.checkoutUrl(
         live: live,
         oid: oid,
@@ -35,7 +35,8 @@ class HttpHelper {
         mvisa: mvisa,
         vooma: vooma,
         pesalink: pesalink,
-        autopay: autopay);
+        autopay: autopay,
+        p4: uidAccess);
 
     return url;
   }

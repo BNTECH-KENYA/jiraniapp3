@@ -40,7 +40,6 @@ class _OTPScreenState extends State<OTPScreen> {
           timer.cancel();
         }
 
-
     });
   }
   @override
@@ -207,18 +206,20 @@ class _OTPScreenState extends State<OTPScreen> {
                     _verifivationCode = verificationID;
                   }
           );
+          print(_verifivationCode);
         },
         codeAutoRetrievalTimeout: (String verificationId)
         {
-
           setState(
                   ()
               {
                 _verifivationCode = verificationId;
               }
           );
+          print(_verifivationCode);
+
         },
-      timeout: Duration(seconds: 1),
+      timeout: Duration(seconds: 60),
     );
   }
 
@@ -266,12 +267,7 @@ class _OTPScreenState extends State<OTPScreen> {
           (builder: (context)=>HomePage())
           )
           });
-
         }
-
       });
-
-
-
     }
 }

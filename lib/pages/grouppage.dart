@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:intl/intl.dart';
 import 'package:jiraniapp/models/grouplistmodel.dart';
+import 'package:jiraniapp/pages/search-group.dart';
 import 'package:jiraniapp/pages/selectContact.dart';
 import 'package:jiraniapp/widget/grouptile.dart';
 import 'package:line_icons/line_icons.dart';
@@ -28,6 +29,30 @@ class _GroupPageState extends State<GroupPage> {
   final db = FirebaseFirestore.instance;
 
   String uidAccess = "0";
+  String user_name = "";
+
+  Future<void> getUserData()
+  async {
+    final docref = db.collection("userdd").doc(uidAccess);
+    await docref.get().then((res) {
+
+      if(res.data() != null)
+      {
+        print("###########################################${res.data()!['name']} group information");
+        setState(
+                (){
+              user_name= res.data()!['name'];
+
+            }
+        );
+
+      }
+
+    });
+
+
+
+  }
 
   Future<void> checkAuth()async {
     await FirebaseAuth.instance
@@ -38,11 +63,12 @@ class _GroupPageState extends State<GroupPage> {
       {
         print("!!!!!!!!!!+++++++++++++++++++++++++++++${user.phoneNumber!}");
         setState(
-            (){
+            () async {
+
               uidAccess =  user.phoneNumber!;
+              await getUserData();
             }
         );
-        getGroupListings();
         print("!!!!!!!!!!+++++++++++++++++++++${user.phoneNumber!}");
       }
       else{
@@ -56,30 +82,7 @@ class _GroupPageState extends State<GroupPage> {
   }
   List<GroupListModel> groupsfromdb =[];
 
-  Future<void> getGroupListings() async {
-
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~!!!!!!!!!!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~${uidAccess}");
-
-    final groupListingdb = db.collection("GroupData");
-    final groupListing = groupListingdb.where("contributors", arrayContains: uidAccess.toString());
-    print("checking if group data is workng  1${groupListing}");
-
-    await groupListing.get().then((ref){
-      print("redata 1${ref.docs}");
-      setState(
-              (){
-                ref.docs.forEach((element) {
-                  groupsfromdb.add(
-                      GroupListModel(
-                          groupName: element.data()['groupname'],
-                          groupid: element.id.toString()));
-                  print("checking if group data is workng  ${element.data()['groupname']}");
-                });
-          }
-      );
-    });
-  }
-
+  int group_no= 0;
 
   List<ChatModel> chats =[
     ChatModel(
@@ -91,8 +94,6 @@ class _GroupPageState extends State<GroupPage> {
         groupidmd: "John: contributed 6000"),
 
   ];
-
-  bool searchToggle = false;
 
   @override
   void initState() {
@@ -119,7 +120,7 @@ class _GroupPageState extends State<GroupPage> {
         child:Icon(Icons.group_add,color:Colors.white)
       ),
         appBar: AppBar(
-          backgroundColor: !searchToggle? Colors.blue:Colors.white,
+          backgroundColor: Colors.blue,
           leading:  InkWell(
             onTap: (){
               Navigator.pop(context);
@@ -127,13 +128,12 @@ class _GroupPageState extends State<GroupPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-              !searchToggle ?  Icon(Icons.arrow_back,color:Colors.white,
-                  size: 24,):Icon(Icons.arrow_back,color:Colors.black87,
-                size: 24,) ,
+                Icon(Icons.arrow_back,color:Colors.white,
+                  size: 24,),
               ],
             ),
           ),
-          title:!searchToggle ?  Column(
+          title: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -143,25 +143,13 @@ class _GroupPageState extends State<GroupPage> {
                     fontSize: 19,
                     fontWeight: FontWeight.bold,
                   )),
-              Text("${groupsfromdb.length} groups",
+              Text("${group_no} groups",
                   style:TextStyle(
                     color:Colors.white,
                     fontSize: 13,
                   )),
 
             ],
-          ): Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: TextFormField(
-              decoration: InputDecoration(
-                hintStyle: TextStyle(
-                  color: Colors.black87,
-
-                ),
-                hintText: "Search",
-                prefix: Icon(Icons.search, color: Colors.white,)
-              ),
-            ),
           ),
 
 
@@ -171,50 +159,53 @@ class _GroupPageState extends State<GroupPage> {
               child: IconButton(
                   onPressed: () {
 
-                    setState(
-                            (){
-                          searchToggle = !searchToggle;
-                        }
-                    );
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>Groups_Search()));
                   },
-                  icon: !searchToggle? Icon(Icons.search, color: Colors.white,):Icon(Icons.cancel, color: Colors.grey,) ),
+                  icon:  Icon(Icons.search, color: Colors.white,),
+            ),
             ),
 
           ],
 
-          bottom: PreferredSize(
-            preferredSize: Size(double.infinity, 20),
-            child: SizedBox(height: 20,),
-
-          ),
 
         ),
       body:StreamBuilder(
         stream: FirebaseFirestore
             .instance
             .collection("GroupData")
-            .where("contributors", arrayContains: uidAccess)
+            .where("contributors", arrayContains:
+
+        {
+          "phone":uidAccess,
+          "name":user_name
+        }
+        )
              .orderBy("toppingClassifier", descending: true)
             .snapshots(),
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot){
 
           if(!snapshot.hasData)
             {
+
               return Center(
                 child: CircularProgressIndicator(),
               );
             }
           else
             {
+
+
               return  ListView.builder(
                 itemCount: snapshot.data?.size,
                 itemBuilder: (context, index){
+
                   QueryDocumentSnapshot<Object?>? course = snapshot.data?.docs[index];
+                  group_no =0;
+                  group_no = snapshot.data!.size;
                   return GroupTile(chatModel:  ChatModel(
                       name: course?['groupname'],
                       icon: course?['groupprofilepic'],
                       time:
-
 
                       (DateFormat('dd/MMM/yyy').format(DateTime.parse((course?['toppingClassifier']).toDate().toString())))
 
@@ -225,9 +216,6 @@ class _GroupPageState extends State<GroupPage> {
 
                       (DateFormat('dd/MMM/yyy').format(DateTime.parse((course?['toppingClassifier']).toDate().toString())))
                       ,
-
-
-
                       currentMessage: course?['latestContribution'],
                       groupidmd: course!.id
                       ,select: false),);
@@ -236,7 +224,6 @@ class _GroupPageState extends State<GroupPage> {
             }
 
         }
-
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.only(top:8.0),

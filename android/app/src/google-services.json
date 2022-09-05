@@ -1,49 +1,35 @@
 {
   "project_info": {
-    "project_number": "490234119235",
-    "project_id": "projectjirani-e0cdf",
-    "storage_bucket": "projectjirani-e0cdf.appspot.com"
+    "project_number": "412171693846",
+    "firebase_url": "https://jiranimobile-default-rtdb.firebaseio.com",
+    "project_id": "jiranimobile",
+    "storage_bucket": "jiranimobile.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:490234119235:android:b70899d7c45bd50cb880f6",
+        "mobilesdk_app_id": "1:412171693846:android:90fa18ca4f9dd63ce3ea37",
         "android_client_info": {
           "package_name": "com.jirani.jiraniapp.jiraniapp"
         }
       },
       "oauth_client": [
         {
-          "client_id": "490234119235-7qvkd6q021jtk6gl4pboa44pt7f3kg3n.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.jirani.jiraniapp.jiraniapp",
-            "certificate_hash": "9f9797a60a0bdce39957a54e28db0ba9e9debc1c"
-          }
-        },
-        {
-          "client_id": "490234119235-g2megj6elj0brsem0t9tvkttc02hiif4.apps.googleusercontent.com",
+          "client_id": "412171693846-4pv8fq6pfa11e7uhgbljb8qak0baar69.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCkCUmHXiB6NgDO6EZv7zhzz6T11i97h-I"
+          "current_key": "AIzaSyAqYPzHo6f5W08_37k4QMlJG15TOVcxI78"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "490234119235-g2megj6elj0brsem0t9tvkttc02hiif4.apps.googleusercontent.com",
+              "client_id": "412171693846-4pv8fq6pfa11e7uhgbljb8qak0baar69.apps.googleusercontent.com",
               "client_type": 3
-            },
-            {
-              "client_id": "490234119235-5gc6tpv7t74fo6104djcekqrnkndmfd6.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.jirani.jiraniapp.jiraniapp"
-              }
             }
           ]
         }

@@ -5,7 +5,8 @@ import '../services/http_helper_ipay.dart';
 import 'checkout_page.dart';
 
 class Ipay_Page extends StatefulWidget {
-  const Ipay_Page({Key? key}) : super(key: key);
+  const Ipay_Page({Key? key, required this.id, required this.amountip, required this.emailip, required this.uidaccessip}) : super(key: key);
+  final String id, uidaccessip, amountip,emailip;
 
   @override
   _Ipay_PageState createState() => _Ipay_PageState();
@@ -19,10 +20,25 @@ class _Ipay_PageState extends State<Ipay_Page> {
   late bool _isSubmitted = false;
   late String result = '';
 
+  TextEditingController phone = TextEditingController();
+  TextEditingController amount = TextEditingController();
+  TextEditingController email = TextEditingController();
+
+
+
+
   @override
   void initState() {
     helper = HttpHelper();
     super.initState();
+
+    setState(
+        (){
+          phone.text = "0${widget.uidaccessip.substring(4, widget.uidaccessip.length)}";
+          email.text = widget.emailip;
+          amount.text = widget.amountip;
+        }
+    );
   }
 
   @override
@@ -30,7 +46,13 @@ class _Ipay_PageState extends State<Ipay_Page> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: const Text('PKG'),
+        backgroundColor: Colors.blue,
+        leading: InkWell(
+            onTap: (){
+
+            },
+            child: Icon(Icons.arrow_back, color: Colors.white,)),
+        title: const Text('Confirmation Page', style:TextStyle(color:Colors.white)),
       ),
       body: Container(
         padding: const EdgeInsets.all(8),
@@ -43,6 +65,7 @@ class _Ipay_PageState extends State<Ipay_Page> {
                   Padding(
                     padding: const EdgeInsets.only(top: 8),
                     child: TextFormField(
+                      controller: phone,
                         keyboardType: TextInputType.phone,
                         decoration: const InputDecoration(
                             border: OutlineInputBorder(),
@@ -59,6 +82,7 @@ class _Ipay_PageState extends State<Ipay_Page> {
                   Padding(
                     padding: const EdgeInsets.only(top: 8),
                     child: TextFormField(
+                      controller: email,
                         keyboardType: TextInputType.emailAddress,
                         decoration: const InputDecoration(
                             border: OutlineInputBorder(),
@@ -75,6 +99,7 @@ class _Ipay_PageState extends State<Ipay_Page> {
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 12.0),
                     child: TextFormField(
+                      controller: amount,
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: false,
                         signed: true,
@@ -96,14 +121,14 @@ class _Ipay_PageState extends State<Ipay_Page> {
                   _isSubmitted
                       ? const CircularProgressIndicator()
                       : ElevatedButton(
-                    child: const Text('Checkout'),
+                    child: const Text('Pay', style: TextStyle(color: Colors.white),),
                     style: ElevatedButton.styleFrom(
-                        primary: const Color(0xff124999),
+                        primary: Colors.blue,
                         elevation: 5.0,
                         minimumSize: const Size(250.0, 40.0),
                         textStyle: const TextStyle(
                           fontSize: 20.0,
-                          color: Colors.black,
+                          color: Colors.white,
                         )),
                     onPressed: _buttonSubmitted,
                   ),
@@ -117,7 +142,7 @@ class _Ipay_PageState extends State<Ipay_Page> {
   }
 
   Future<String> makepayement(String phone, String email, String amount) async {
-    var response = (await helper.generateUrl(phone, email, amount));
+    var response = (await helper.generateUrl(phone, email, amount, "${widget.id}","${widget.uidaccessip.substring(1,widget.uidaccessip.length)}"));
     //print(resultData);
     return response;
   }

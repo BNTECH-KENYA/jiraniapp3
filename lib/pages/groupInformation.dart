@@ -6,6 +6,7 @@ import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:jiraniapp/pages/grouppage.dart';
+import 'package:jiraniapp/pages/invites_contact_selection.dart';
 import 'package:jiraniapp/pages/loading_screen.dart';
 import 'package:jiraniapp/pages/selectContact.dart';
 import 'package:line_icons/line_icons.dart';
@@ -19,8 +20,8 @@ import 'login.dart';
 import 'my_contributions.dart';
 
 class GroupInfo extends StatefulWidget {
-  const GroupInfo({Key? key, required this.groupId}) : super(key: key);
-  final String groupId;
+  const GroupInfo({Key? key, required this.groupId, required this.groupname}) : super(key: key);
+  final String groupId, groupname;
 
   @override
   State<GroupInfo> createState() => _GroupInfoState();
@@ -140,20 +141,26 @@ class _GroupInfoState extends State<GroupInfo> {
               element.phones[0].normalizedNumber.toString().length<15
           )
           {
+            int k = 0;
             print(element.phones[0].normalizedNumber.toString());
             final docref = db.collection("userdd").doc(element.phones[0].normalizedNumber.toString());
             await docref.get().then((res) =>{
               print("matching"),
               if(res.data() != null)
                 {
+
                   if(res.data()!['uid'] == uidAccess)
                     {
 
                     }
                   else
                     {
-                      print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>${contributors_numbers[0]}"),
-                      if(contributors_numbers.contains(res.data()!['phone']))
+
+                      print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>${contributors_numbers[k]['phone']}"),
+                      print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<${
+                    res.data()!['phone']
+                    }   ******** ${res.data()!['name']}"),
+                      if(contributors_numbers[k]['phone'] == res.data()!['phone'])
                         {
                           print(" adding <<<<<<<<<<<<<>>>>>>>>>>>>>>${contributors_numbers[0]}"),
                           setState(
@@ -168,7 +175,7 @@ class _GroupInfoState extends State<GroupInfo> {
                                   ),
                                 );
                                 i++;
-                                print("${i} value of i ${contacts2!.length} value of contact2.length");
+                                print("${i}    >>>>>>> value of i ${contacts2!.length} value of contact2.length");
                                 if( contacts2!.length == i )
                                 {
                                   setState(
@@ -180,13 +187,20 @@ class _GroupInfoState extends State<GroupInfo> {
 
                               }
                           ),
+
                         }
+                      else
+                        {
+                          print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"),
+                        }
+
 
                     }
                 }
               else
                 {
                   i++,
+                  k++,
                   if( contacts2!.length == i )
                     {
                   setState(
@@ -199,6 +213,7 @@ class _GroupInfoState extends State<GroupInfo> {
             }, onError: (e) {
 
             });
+
           }
         }
         catch(e){
@@ -377,13 +392,18 @@ class _GroupInfoState extends State<GroupInfo> {
                     if(contactstadd.length > 0)
                     {
 
-                      List<String> new_contributors_numbers = [];
+                      List<Map<String, dynamic>> new_contributors_numbers = [];
 
                       contactstadd.forEach((element) {
 
                         if(!contributors_numbers.contains(element.phone))
                           {
-                            new_contributors_numbers.add(element.phone);
+                            new_contributors_numbers.add(
+                                {
+                                  "phone":element.phone,
+                                  "name":element.name
+                                }
+                            );
                             print("element.phone>>>>>>>>>>>>>>>>>>>>>>${element.phone}");
                           }
                       });
@@ -398,8 +418,11 @@ class _GroupInfoState extends State<GroupInfo> {
                 InkWell(
                     onTap:() async {
 
-                      await Share.share("you were invited to join ${groupname} on jirani app if you dont have the app download it on ...");
+                      Navigator.of(context).push(
+                          MaterialPageRoute
+                            (builder: (context)=>Invite_Contacts(groupid: widget.groupId, groupname: widget.groupname,)));
                             },
+
                     child: LinkInvite()
                 ),
               ],

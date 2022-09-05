@@ -3,10 +3,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:jiraniapp/pages/ipay_page.dart';
 
 import '../models/messagemodel.dart';
+import '../services/http_helper_ipay.dart';
 import '../widget/otherCard.dart';
 import '../widget/owncontributor.dart';
+import 'checkout_page.dart';
 import 'groupInformation.dart';
 import 'login.dart';
 
@@ -26,6 +29,7 @@ class _InGroupPageState extends State<InGroupPage>{
     bool onloaded = false;
     String uidAccess = "0";
     String user_name = "";
+  late String _email = 'bngatia122@gmail.com';
   Future<void> checkAuth()async {
     await FirebaseAuth.instance
         .authStateChanges()
@@ -50,7 +54,9 @@ class _InGroupPageState extends State<InGroupPage>{
     print("!!!!!!!!!!*********************************************${uidAccess}");
 
   }
+
     List<String> contributorsfrst = [];
+
   Future<void> getGroupDetails()
 
   async {
@@ -64,9 +70,9 @@ class _InGroupPageState extends State<InGroupPage>{
             (){
               groupname=  res.data()!['groupname'];
               imagelink=  res.data()!['groupprofilepic'];
-
             }
         );
+
         getUserData();
       }
 
@@ -99,7 +105,7 @@ class _InGroupPageState extends State<InGroupPage>{
 
 
 
-  Future<void> add_Chat_Data(name, message)
+  Future<String> add_Chat_Data()
 
   async {
     setState(
@@ -113,21 +119,22 @@ class _InGroupPageState extends State<InGroupPage>{
 
       "timestamp":FieldValue.serverTimestamp(),
       "groupuid":widget.groupid,
-      "sendername": name,
-      "message": message,
+      "sendername": user_name,
+      "message": "",
       "senderphoneno":uidAccess,
       "groupname":groupname,
 
     };
 
     await db.collection("contributionsupdate").add(chatdetails).then(
-            (DocumentReference doc) {
+            (DocumentReference doc) async {
               documentid = doc.id;
-
-              updateGroupLastText(name, message);
+            await  updateGroupLastText(user_name, "");
+              Navigator.push(context, MaterialPageRoute(builder: (context)=>Ipay_Page(id: documentid,  uidaccessip: uidAccess, amountip:_amounttocontribute.text.toString() , emailip: _email,)));
 
         }
     );
+    return documentid;
   }
 
   Future <void> updateGroupLastText(name, amount)async {
@@ -178,7 +185,7 @@ class _InGroupPageState extends State<InGroupPage>{
 
                    Navigator.of(context).pop();
                    print("user name >>>>>>>>>>>>>${user_name}");
-                  await add_Chat_Data( user_name, _amounttocontribute.text.toString() );
+
                    setState(
                        (){
                          _amounttocontribute.text = "";
@@ -197,10 +204,16 @@ class _InGroupPageState extends State<InGroupPage>{
    );
   }
 
+  late String result = '';
+  late HttpHelper helper;
+
+
+  // final move
 
     @override
       void initState() {
         // TODO: implement initState
+        helper = HttpHelper();
         super.initState();
 
         () async {
@@ -254,7 +267,7 @@ class _InGroupPageState extends State<InGroupPage>{
                 onTap: (){
 
                     Navigator.push(context, MaterialPageRoute(builder: (context)=>GroupInfo(
-                        groupId: widget.groupid
+                        groupId: widget.groupid, groupname: groupname,
                     )));
 
                 },
@@ -282,7 +295,7 @@ class _InGroupPageState extends State<InGroupPage>{
                       if(value == "groupinfo")
                         {
                           Navigator.push(context, MaterialPageRoute(builder: (context)=>GroupInfo(
-                              groupId: widget.groupid
+                              groupId: widget.groupid, groupname: groupname,
                           )));
                         }
                     },
@@ -334,8 +347,12 @@ class _InGroupPageState extends State<InGroupPage>{
                          itemCount: snapshot.data?.size,
                          itemBuilder: (context, index){
                            QueryDocumentSnapshot<Object?>? course = snapshot.data?.docs[index];
-                           if(course?['senderphoneno'] == uidAccess)
+
+                           if(course?['message'] !="" )
+                           {
+                             if(course?['senderphoneno'] == uidAccess)
                              {
+
                                return OwnMessageCard(messageModel:  MesssageModel(
                                    timestamp: (DateFormat('dd/MMM/yyy').format(DateTime.parse((course?['timestamp']).toDate().toString())))
 
@@ -347,10 +364,10 @@ class _InGroupPageState extends State<InGroupPage>{
                                    (DateFormat('dd/MMM/yyy hh:mm a').format(DateTime.parse((course?['timestamp']).toDate().toString()))),
                                    name: course?['sendername'].split('-')[0],
                                    message: "you contributed ${course?['message']}"
-                                 ),);
+                               ),);
 
                              }
-                           else
+                             else
                              {
                                return ReplCard(messageModel:  MesssageModel(
                                    timestamp: (DateFormat('dd/MMM/yyy').format(DateTime.parse((course?['timestamp']).toDate().toString())))
@@ -364,6 +381,13 @@ class _InGroupPageState extends State<InGroupPage>{
                                    name: course?['sendername'].split('-')[0],
                                    message: "${course?['sendername']..split('-')[0]} contributed ${course?['message']}"),);
                              }
+                           }
+                           else
+                             {
+                               return Container();
+                             }
+
+
 
                          },
 
@@ -409,7 +433,7 @@ class _InGroupPageState extends State<InGroupPage>{
                           radius: 25,
                           backgroundColor: Colors.blue,
                           child: IconButton(
-                            onPressed: () {
+                            onPressed: () async {
                               if(_amounttocontribute.text.toString().isEmpty)
                               {
 
@@ -422,7 +446,8 @@ class _InGroupPageState extends State<InGroupPage>{
                               }
                               else
                                 {
-                                  display_function_dialogue();
+                                  await add_Chat_Data();
+
 
                                 }
 
@@ -438,10 +463,8 @@ class _InGroupPageState extends State<InGroupPage>{
               ],
             ),
           ),
-
         ),
       ],
-
     );
   }
 }

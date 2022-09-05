@@ -52,7 +52,7 @@ class _GroupActivationState extends State<GroupActivation> {
   final storage _storage = storage();
   final dbfr = FirebaseFirestore.instance;
   var locationinfoval;
-  List<String> ?contributorsval = [];
+  List<Map<String, dynamic>> ?contributorsval = [];
   List<ContactModel> groups2 = [  ContactModel(
     name:"name",
     uid: "uid",
@@ -185,7 +185,10 @@ class _GroupActivationState extends State<GroupActivation> {
                 print("********************************************");
                 print(element.phone);
                 print("********************************************");
-                contributorsval?.add(element.phone);
+                contributorsval?.add({
+                  "phone":element.phone,
+                  "name":element.name
+                });
               }
 
             });
@@ -241,7 +244,10 @@ class _GroupActivationState extends State<GroupActivation> {
                     }
                 );
 
-                contributorsval?.add(uidAccess);
+                contributorsval?.add({
+                  "phone":uidAccess,
+                  "name":user_name
+                });
 
                 String groupId = await uploadGroupData(
                     _groupnameController.text.toString(),

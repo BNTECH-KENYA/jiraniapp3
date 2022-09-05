@@ -1,8 +1,8 @@
 const String vendorId = "coinbox";
-const String securityKey = "PZTGp#9t4MJ3bKDM7kfU8kQTz%vaMuuT";
+const String securityKey =r"UbD4kf#Uu?9ZcP&ZjNmNb$cChyKuVndg";
 const String live = "1";
 const String currency = "KES";
-const String callBackUrl = "https://console.firebase.google.com/u/0/project/projectjirani-e0cdf/database/projectjirani-e0cdf-default-rtdb/data/post.json";
+const String callBackUrl = "https://us-central1-jiranimobile.cloudfunctions.net/ipay_call_handler";
 const String cst = "1";
 const String crl = "2";
 
